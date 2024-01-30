@@ -105,6 +105,7 @@ public class ClienteControllerTest {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/api/clientes/1").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
         mvc.perform(request).andExpect(MockMvcResultMatchers.status().isNoContent());
+
     }
 
     @Test
@@ -128,7 +129,10 @@ public class ClienteControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("id").value(id))
                 .andExpect(MockMvcResultMatchers.jsonPath("nome").value(clienteAtualizado.getNome()))
                 .andExpect(MockMvcResultMatchers.jsonPath("cpf").value(clienteAtualizado.getCpf()));
+
     }
+
+
 }
 
 

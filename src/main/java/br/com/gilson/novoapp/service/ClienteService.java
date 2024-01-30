@@ -2,10 +2,7 @@ package br.com.gilson.novoapp.service;
 
 import br.com.gilson.novoapp.mapper.ClienteMapper;
 import br.com.gilson.novoapp.model.entity.Cliente;
-import br.com.gilson.novoapp.model.entity.Produto;
 import br.com.gilson.novoapp.model.repository.ClienteRepository;
-import ch.qos.logback.core.net.server.Client;
-import jakarta.persistence.Id;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,11 +40,8 @@ public class ClienteService {
     }
 
     @Transactional
-    public Cliente delete(Long id) {
-        Cliente cliente = new Cliente();
+    public void delete(Long id) {
         repository.deleteById(id);
-        return cliente;
-
     }
 }
 
