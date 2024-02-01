@@ -4,7 +4,6 @@ import br.com.gilson.novoapp.dto.ClienteDto;
 import br.com.gilson.novoapp.exception.ApiErrors;
 import br.com.gilson.novoapp.mapper.ClienteMapper;
 import br.com.gilson.novoapp.model.entity.Cliente;
-import br.com.gilson.novoapp.model.repository.ClienteRepository;
 import br.com.gilson.novoapp.service.ClienteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +25,9 @@ public class ClienteController {
     @Autowired
     private ClienteService service;
 
-    @Autowired
-    private ClienteRepository repository;
 
     @GetMapping(value = {"/{id}"})
+    @ResponseStatus(HttpStatus.OK)
     public ClienteDto obterCliente(@PathVariable Long id) {
         return clienteMapper.toDto(service.buscarPor(id));
     }
@@ -45,10 +43,11 @@ public class ClienteController {
     @DeleteMapping(value = {"/{id}"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarCliente(@PathVariable Long id) {
-        repository.deleteById(id);
+        service.delete(id);
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ClienteDto atualizarCliente(@PathVariable Long id, @RequestBody ClienteDto dto) {
         Cliente cliente = clienteMapper.toEntity(dto);
         return clienteMapper.toDto(service.update(id, cliente));

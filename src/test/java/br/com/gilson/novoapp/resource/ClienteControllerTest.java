@@ -39,10 +39,10 @@ public class ClienteControllerTest {
 
     static String CLIENTE_API = "/api/clientes";
 
-    @MockBean
+    @Autowired
     ClienteRepository repository;
 
-    @MockBean
+    @Autowired
     ClienteService service;
 
     @Autowired
@@ -51,8 +51,7 @@ public class ClienteControllerTest {
     @Test
     @DisplayName("Criar cliente normal")
     public void inserirClientetest() throws Exception {
-        Cliente clienteSalvo = Cliente.builder().id(1L).nome("Gilson").cpf("111222333-44").build();
-        BDDMockito.given(service.save(Mockito.any(Cliente.class))).willReturn(clienteSalvo);
+        Cliente clienteSalvo = Cliente.builder().nome("Gilson").cpf("111222333-44").build();
 
         String json = new ObjectMapper().writeValueAsString(clienteSalvo);
 
@@ -75,10 +74,10 @@ public class ClienteControllerTest {
     @DisplayName("teste getcliente")
     public void buscarClientetest() throws Exception {
 
-        Cliente cliente = Cliente.builder().id(1l).nome("Gilson").cpf("000000000-11").build();
-        Mockito.when(service.buscarPor(cliente.getId())).thenReturn(cliente);
+        Cliente cliente = repository.save(Cliente.builder().id(1l).nome("Gilson").cpf("000000000-11").build());
+//        Mockito.when(service.buscarPor(cliente.getId())).thenReturn(cliente);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/api/clientes/1").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(CLIENTE_API + "/" + cliente.getId()).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
         mvc.perform(request).andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("id").value(1)).andExpect(MockMvcResultMatchers.jsonPath("nome").value(cliente.getNome())).andExpect(MockMvcResultMatchers.jsonPath("cpf").value(cliente.getCpf()));
     }
@@ -88,47 +87,50 @@ public class ClienteControllerTest {
     public void buscarClienteIdNulotest() throws Exception {
 
         Cliente cliente = Cliente.builder().id(1L).nome("Gilson").cpf("000000000-11").build();
-        Mockito.when(service.buscarPor(cliente.getId())).thenThrow(new RuntimeException("Registro não encontrado"));
+//        repository.findById(cliente.getId()).orElseThrow(new RuntimeException);
 
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/api/clientes/1");
 
-        mvc.perform(request).andExpect(MockMvcResultMatchers.status().isNotFound()).andExpect(result -> Assertions.assertEquals("Registro não encontrado", Objects.requireNonNull(result.getResolvedException()).getMessage()));
+        mvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(result -> Assertions.assertEquals("Registro não encontrado!", Objects.requireNonNull(result.getResolvedException()).getMessage()));
     }
 
     @Test
     @DisplayName("deletarCliente_teste")
     public void deletarClienteTest() throws Exception {
-        Cliente cliente = Cliente.builder().id(1l).nome("Gilson").cpf("000000000-11").build();
-        Mockito.doNothing().when(repository).deleteById(cliente.getId());
+        Long idDoRegistro = 1L;
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/api/clientes/1").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
+        mvc.perform(MockMvcRequestBuilders.delete("/api/produtos/{id}", idDoRegistro)
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNoContent());
 
-        mvc.perform(request).andExpect(MockMvcResultMatchers.status().isNoContent());
+
 
     }
 
     @Test
     @DisplayName("Atualizar cliente Test")
     public void atualizarClienteTest() throws Exception {
-        Long id = 1l;
-        ClienteDto clienteDtoAtualizado = ClienteDto.builder().id(1l).nome("ClienteAtualizado").cpf("301231232130-44").build();
-        Cliente clienteAtualizado = Cliente.builder().id(1l).nome("ClienteAtualizado").cpf("301231232130-44").build();
+        Cliente clienteAtualizado = Cliente.builder().nome("ClienteAtualizado").cpf("301231232130-44").build();
+        Cliente novoCliente = repository.save(clienteAtualizado);
+        ClienteDto clienteDtoAtualizado = ClienteDto.builder().id(novoCliente.getId()).nome("ClienteDtoAtualizado").cpf("301231232130-44").build();
+
 
         String json = new ObjectMapper().writeValueAsString(clienteDtoAtualizado);
 
-        Mockito.when(service.update(id, clienteAtualizado)).thenReturn(clienteAtualizado);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-                .put("/api/clientes/{id}", 1)
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.put(CLIENTE_API + "/" + novoCliente.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json);
 
-        mvc.perform(request).andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("id").value(id))
-                .andExpect(MockMvcResultMatchers.jsonPath("nome").value(clienteAtualizado.getNome()))
-                .andExpect(MockMvcResultMatchers.jsonPath("cpf").value(clienteAtualizado.getCpf()));
+        mvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("id").value(clienteDtoAtualizado.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("nome").value(clienteDtoAtualizado.getNome()))
+                .andExpect(MockMvcResultMatchers.jsonPath("cpf").value(clienteDtoAtualizado.getCpf()));
 
     }
 
@@ -179,6 +181,12 @@ public class ClienteControllerTest {
 //    }
 
 
+//        Cliente cliente = Cliente.builder().id(1l).nome("Gilson").cpf("000000000-11").build();
+//        Mockito.doNothing().when(repository).deleteById(cliente.getId());
+//
+//        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/api/clientes/1").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
+//
+//        mvc.perform(request).andExpect(MockMvcResultMatchers.status().isNoContent());
 
 
 

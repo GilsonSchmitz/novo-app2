@@ -3,7 +3,6 @@ package br.com.gilson.novoapp.resource;
 import br.com.gilson.novoapp.dto.ProdutoDto;
 import br.com.gilson.novoapp.mapper.ProdutoMapper;
 import br.com.gilson.novoapp.model.entity.Produto;
-import br.com.gilson.novoapp.model.repository.ProdutoRepository;
 import br.com.gilson.novoapp.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,15 +16,12 @@ public class ProdutoController {
     ProdutoMapper produtoMapper;
 
     @Autowired
-    ProdutoRepository produtoRepository;
-
-    @Autowired
     ProdutoService produtoService;
 
     @DeleteMapping(value = {"/{id}"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void excluirProduto(@PathVariable Long id) {
-        produtoRepository.deleteById(id);
+        produtoService.delete(id);
     }
 
     @PostMapping
@@ -42,6 +38,7 @@ public class ProdutoController {
     }
 
     @PutMapping(value = {"/{id}"})
+    @ResponseStatus(HttpStatus.OK)
     public ProdutoDto atualizarProduto(@PathVariable Long id, @RequestBody ProdutoDto produtoDto) {
         Produto produto = produtoMapper.toEntity(produtoDto);
         return produtoMapper.toDto(produtoService.update(id, produto));

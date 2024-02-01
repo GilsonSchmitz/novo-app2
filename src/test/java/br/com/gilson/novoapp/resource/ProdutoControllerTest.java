@@ -35,21 +35,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ProdutoControllerTest {
     static String PRODUTO_API = "/api/produtos";
 
-    @MockBean
-    ProdutoRepository repository;
-
-    @MockBean
-    ProdutoService service;
-
     @Autowired
     MockMvc mvc;
+
+    @Autowired
+    ProdutoRepository produtoRepository;
 
     @Test
     @DisplayName("Criar produto normal")
     public void inserirProduto_teste() throws Exception {
+        Produto produtoSalvo = Produto.builder().nome("Gilson").valor(23.0).build();
 
-        Produto produtoSalvo = Produto.builder().id(1L).nome("Gilson").valor(23.0).build();
-        Mockito.when(service.save(produtoSalvo)).thenReturn(produtoSalvo);
 
         String json = new ObjectMapper().writeValueAsString(produtoSalvo);
 
@@ -59,8 +55,8 @@ public class ProdutoControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json);
 
-        mvc
-                .perform(request).andExpect(status().isCreated())
+        mvc.perform(request)
+                .andExpect(status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("id").isNotEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("nome").value(produtoSalvo.getNome()))
                 .andExpect(MockMvcResultMatchers.jsonPath("valor").value(produtoSalvo.getValor()));
@@ -69,16 +65,13 @@ public class ProdutoControllerTest {
     @Test
     @DisplayName("Pegar produto por ID")
     public void pegarProduto_teste() throws Exception {
-        Produto produtoPegar = Produto.builder().id(1L).nome("Gilson").valor(23.0).build();
-        Mockito.when(service.buscarPor(produtoPegar.getId())).thenReturn(produtoPegar);
-
-        String json = new ObjectMapper().writeValueAsString(produtoPegar);
+        Produto produtoPegar = produtoRepository.save(Produto.builder().id(1L).nome("Gilson").valor(23.0).build());
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-                .get(PRODUTO_API + "/1")
+                .get(PRODUTO_API + "/" + produtoPegar.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(json);
+                .accept(MediaType.APPLICATION_JSON);
+
 
 
         mvc.perform(request)
@@ -92,45 +85,36 @@ public class ProdutoControllerTest {
     @Test
     @DisplayName("Atualizar produto Test")
     public void atualizarProdutoTest() throws Exception {
-        Long produtoId = 1L;
-        ProdutoDto produtoDtoAtualizado = ProdutoDto.builder().id(1L).nome("ProdutoAtualizado").valor(30.0).build();
-        Produto produtoAtualizado = Produto.builder().id(1L).nome("ProdutoAtualizado").valor(30.0).build();
+        Produto produto1 = Produto.builder().nome("Produto").valor(30.0).build();
+        Produto produtoSaved = produtoRepository.save(produto1);
+
+        ProdutoDto produtoDtoAtualizado = ProdutoDto.builder().id(produtoSaved.getId()).nome("ProdutoAtualizado").valor(30.0).build();
 
         String json = new ObjectMapper().writeValueAsString(produtoDtoAtualizado);
 
-        Mockito.when(service.update(produtoId, produtoAtualizado)).thenReturn(produtoAtualizado);
-
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-                .put("/api/produtos/1")
+                .put("/api/produtos/" + produtoSaved.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json);
 
         mvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("id").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("nome").value(produtoAtualizado.getNome()))
-                .andExpect(MockMvcResultMatchers.jsonPath("valor").value(produtoAtualizado.getValor()));
+                .andExpect(MockMvcResultMatchers.jsonPath("id").value(produtoSaved.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("nome").value(produtoDtoAtualizado.getNome()))
+                .andExpect(MockMvcResultMatchers.jsonPath("valor").value(produtoDtoAtualizado.getValor()));
     }
 
     @Test
     @DisplayName("apagar produto")
     public void apagar_ProdutoTeste() throws Exception {
-        Long id = 1L;
-        Produto produtoApagar = Produto.builder().id(1L).nome("ProdutoAtualizado").valor(30.0).build();
+        Long idDoRegistro = 1L;
 
-        String json = new ObjectMapper().writeValueAsString(produtoApagar);
+        mvc.perform(MockMvcRequestBuilders
+                        .delete("/api/produtos/{id}", idDoRegistro)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
 
-        Mockito.when(service.delete(id)).thenReturn(produtoApagar);
-
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-                .delete("/api/produtos/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(json);
-
-        mvc.perform(request)
-                .andExpect(status().isNoContent());
     }
 }
 

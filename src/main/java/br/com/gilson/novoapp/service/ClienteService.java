@@ -18,6 +18,7 @@ public class ClienteService {
     @Autowired
     ClienteRepository repository;
 
+    @Transactional
     public List<Cliente> findAll() {
         return repository.findAll();
     }
@@ -29,12 +30,13 @@ public class ClienteService {
 
     @Transactional
     public Cliente update(Long id, Cliente cliente) {
-        Cliente clienteFinded = repository.findById(id).orElseThrow(() -> new RuntimeException("Registros nao encontrado"));
+        Cliente clienteFinded = repository.findById(id).orElseThrow(() -> new RuntimeException("Registros nao encontrado!"));
         clienteFinded.setNome(cliente.getNome());
         clienteFinded.setCpf(cliente.getCpf());
         return repository.save(clienteFinded);
     }
 
+    @Transactional
     public Cliente buscarPor(Long id) {
         return repository.findById(id).orElseThrow(() -> new RuntimeException("Registro não encontrado!"));
     }

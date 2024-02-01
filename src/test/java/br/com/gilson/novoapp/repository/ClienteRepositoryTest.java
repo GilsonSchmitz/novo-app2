@@ -17,16 +17,16 @@ import java.util.Optional;
 @SpringBootTest
 @AutoConfigureTestEntityManager
 @ActiveProfiles("test")
-//@SpringBootTest
+
 public class ClienteRepositoryTest {
 
     @Autowired
     ClienteRepository repository;
-
-    @BeforeEach
-    void beforeEach() {
-        repository.deleteAll();
-    }
+//
+//    @BeforeEach
+//    void beforeEach() {
+//        repository.deleteAll();
+//    }
 
     @Test
     @DisplayName("Buscar Cliente Repository")

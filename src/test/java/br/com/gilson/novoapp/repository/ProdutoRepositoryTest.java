@@ -3,11 +3,10 @@ package br.com.gilson.novoapp.repository;
 import br.com.gilson.novoapp.model.entity.Produto;
 import br.com.gilson.novoapp.model.repository.ProdutoRepository;
 import br.com.gilson.novoapp.service.ProdutoService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -17,6 +16,7 @@ import java.util.Optional;
 
 @SpringBootTest
 @AutoConfigureTestEntityManager
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY, connection = EmbeddedDatabaseConnection.H2)
 @ActiveProfiles("test")
 public class ProdutoRepositoryTest {
 
@@ -26,8 +26,8 @@ public class ProdutoRepositoryTest {
     @Autowired
     ProdutoRepository repository;
 
-    @BeforeEach
-    void beforeEach() {
+    @AfterEach
+    void AfterEach() {
         repository.deleteAll();
     }
 

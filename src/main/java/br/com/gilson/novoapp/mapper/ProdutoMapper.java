@@ -4,7 +4,6 @@ import br.com.gilson.novoapp.dto.ProdutoDto;
 import br.com.gilson.novoapp.model.entity.Produto;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
-import org.springframework.context.annotation.Bean;
 
 @Mapper(componentModel = "spring")
 public interface ProdutoMapper {
